@@ -1,8 +1,8 @@
 
 bodies:
   - name: base
-    type: dynamic  
-    color: [1, 1, 1, 0.75] 
+    type: dynamic
+    color: [1, 1, 1, 0.75]
     footprints:
       - type: polygon
         density: 100
@@ -13,7 +13,7 @@ bodies:
                   [.07983, 0.337],
                   [-1.03, 0.337] ]
   - name: front_wheel
-    color: [1, 1, 1, 0.75] 
+    color: [1, 1, 1, 0.75]
     footprints:
       - type: polygon
         density: 1.0
@@ -23,7 +23,7 @@ bodies:
                  [-0.0875, -0.0250]]
 
   - name: rear_left_wheel
-    color: [1, 1, 1, 0.75] 
+    color: [1, 1, 1, 0.75]
     footprints:
       - type: polygon
         density: 1.0
@@ -45,7 +45,7 @@ bodies:
 joints:
   - type: revolute
     name: front_wheel_revolute
-    bodies: 
+    bodies:
       - name: front_wheel
         anchor: [0, 0]
       - name: base
@@ -53,15 +53,15 @@ joints:
 
   - type: weld
     name: rear_right_wheel_weld
-    bodies: 
+    bodies:
       - name: rear_left_wheel
         anchor: [0, 0]
       - name: base
         anchor: [-0.83, 0.29]
 
   - type: weld
-    name: rear_left_wheel_weld  
-    bodies: 
+    name: rear_left_wheel_weld
+    bodies:
       - name: rear_right_wheel
         anchor: [0, 0]
       - name: base
@@ -73,7 +73,7 @@ plugins:
     publish_tf_world: true
 
   - type: TricycleDrive
-    name: cleaner_drive 
+    name: cleaner_drive
     body: base
     front_wheel_joint: front_wheel_revolute
     rear_left_wheel_joint: rear_left_wheel_weld
@@ -91,3 +91,6 @@ plugins:
     angle: {min: -2.356194490192345, max: 2.356194490192345, increment: 0.004363323129985824}
     noise_std_dev: 0.05
     update_rate: 40
+
+  - type: Simple
+    name: simple

@@ -26,4 +26,7 @@
   <class type="flatland_plugins::RandomWall" base_class_type="flatland_server::WorldPlugin">
     <description>Add random walls into the world</description>
   </class>
+  <class type="flatland_plugins::Simple" base_class_type="flatland_server::ModelPlugin">
+    <description>Simplest possible plugin to print hello world</description>
+  </class>
 </library>

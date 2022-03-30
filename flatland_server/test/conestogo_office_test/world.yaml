@@ -7,7 +7,7 @@ layers:  # Support for arbitrary number of layers
     map: "map3d.yaml"
     color: [1.0, 0.0, 0.0, 0.5]  # red 50% transparent
 models:
-  - name: cleaner1 
+  - name: cleaner1
     pose: [12, 0, 0]
     model: "cleaner.model.yaml"
   - name: walker1
@@ -26,7 +26,7 @@ plugins:
     robot_name: cleaner1
 
 
-  # - name: turtlebot1 
+  # - name: turtlebot1
   #   pose: [12, 0, 0]
   #   model: "turtlebot.model.yaml"
-    
+

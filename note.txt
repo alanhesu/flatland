@@ -1,0 +1,4 @@
+download lua:
+sudo apt-get install iblua5.2-dev
+add to flatland/CMakeLists.txt:
+include_directories(include $(catkin_INCLUDE_DIRS))
