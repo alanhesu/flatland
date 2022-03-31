@@ -82,6 +82,7 @@ add_library(flatland_plugins_lib
   src/world_random_wall.cpp
   src/gps.cpp
   src/simple.cpp
+  src/radiation_source_world.cpp
 )
 
 add_dependencies(flatland_plugins_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

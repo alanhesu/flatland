@@ -29,4 +29,7 @@
   <class type="flatland_plugins::Simple" base_class_type="flatland_server::ModelPlugin">
     <description>Simplest possible plugin to print hello world</description>
   </class>
+  <class type="flatland_plugins::RadiationSourceWorld" base_class_type="flatland_server::WorldPlugin">
+    <description>Simplest possible plugin to print hello world</description>
+  </class>
 </library>
