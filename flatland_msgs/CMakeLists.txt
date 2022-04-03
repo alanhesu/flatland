@@ -31,6 +31,7 @@ add_service_files(FILES
   SpawnModel.srv
   DeleteModel.srv
   MoveModel.srv
+  SpawnRadSource.srv
 )
 
 generate_messages(

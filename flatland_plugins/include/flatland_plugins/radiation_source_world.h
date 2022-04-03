@@ -1,5 +1,6 @@
 #include <flatland_plugins/update_timer.h>
 #include <flatland_msgs/RadSources.h>
+#include <flatland_msgs/SpawnRadSource.h>
 #include <flatland_server/world_plugin.h>
 #include <flatland_server/timekeeper.h>
 #include <flatland_server/types.h>
@@ -19,9 +20,9 @@ namespace flatland_plugins {
 
 struct Source {
   std::string name;
-  double x;
-  double y;
-  double val;
+  float x;
+  float y;
+  float val;
 };
 
 /**
@@ -41,6 +42,9 @@ class RadiationSourceWorld : public WorldPlugin {
   std::default_random_engine rng_;              ///< random generator
 
   ros::Publisher source_publisher_;             ///< ros laser topic publisher
+
+  ros::ServiceServer spawn_source_service_;   ///< service for spawning radiation sources
+
   flatland_plugins::UpdateTimer update_timer_;                  ///< for controlling update rate
 
   /**
@@ -57,6 +61,7 @@ class RadiationSourceWorld : public WorldPlugin {
    */
   void BeforePhysicsStep(const Timekeeper &timekeeper) override;
 
+  bool SpawnRadSource(flatland_msgs::SpawnRadSource::Request &request, flatland_msgs::SpawnRadSource::Response &response);
   /**
    * @brief Method that contains all of the laser range calculations
    */

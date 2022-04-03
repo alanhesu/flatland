@@ -1,10 +1,10 @@
 #include <pluginlib/class_list_macros.h>
 #include <flatland_plugins/radiation_source_world.h>
-#include <flatland_msgs/RadSources.h>
 #include <flatland_server/collision_filter_registry.h>
 #include <flatland_server/exceptions.h>
 #include <flatland_server/world_plugin.h>
 #include <flatland_server/yaml_reader.h>
+#include <geometry_msgs/Pose.h>
 #include <boost/algorithm/string/join.hpp>
 #include <cmath>
 #include <limits>
@@ -19,7 +19,13 @@ void RadiationSourceWorld::OnInitialize(const YAML::Node &config) {
   update_timer_.SetRate(update_rate_);
   source_publisher_ = nh_.advertise<flatland_msgs::RadSources>(topic_, 50);
 
-  // construct radiation value message
+  spawn_source_service_ = nh_.advertiseService("spawn_rad_source", &RadiationSourceWorld::SpawnRadSource, this);
+
+  if (spawn_source_service_) {
+    ROS_INFO_NAMED("Service Manager", "Radiation source spawning service ready to go");
+  } else {
+    ROS_ERROR_NAMED("Service Manager", "Error starting radiation source spawning service");
+  }
 }
 
 void RadiationSourceWorld::BeforePhysicsStep(const Timekeeper &timekeeper) {
@@ -36,6 +42,35 @@ void RadiationSourceWorld::BeforePhysicsStep(const Timekeeper &timekeeper) {
   }
 }
 
+bool RadiationSourceWorld::SpawnRadSource(flatland_msgs::SpawnRadSource::Request &request, flatland_msgs::SpawnRadSource::Response &response) {
+  //TODO: add debug printout
+  printf("spawned\n");
+  std::string name = request.name;
+  geometry_msgs::Pose pose = request.pose;
+  float value = request.value;
+
+  if (source_size_ >= source_max_) {
+    int new_max = source_max_*2;
+    Source* sources_new = new Source[new_max];
+    for (int i = 0; i < source_size_; i++) {
+      sources_new[i] = sources_[i];
+    }
+    delete[] sources_;
+    sources_ = sources_new;
+    source_max_ = new_max;
+  }
+  sources_[source_size_].name = name;
+  sources_[source_size_].x = pose.position.x;
+  sources_[source_size_].y = pose.position.y;
+  sources_[source_size_].val = value;
+
+  response.success = true;
+  response.message = sources_[source_size_].name;
+
+  source_size_++;
+  return true;
+}
+
 void RadiationSourceWorld::PopulateSourceMsg(const Timekeeper &timekeeper) {
   source_msg_.header.stamp = timekeeper.GetSimTime();
   std::vector<std::string> names;
@@ -43,7 +78,6 @@ void RadiationSourceWorld::PopulateSourceMsg(const Timekeeper &timekeeper) {
   std::vector<float> y;
   std::vector<float> val;
   for (int i = 0; i < source_size_; i++) {
-    //names[i] = sources_[i].name;
     names.push_back(sources_[i].name);
     x.push_back(sources_[i].x);
     y.push_back(sources_[i].y);
