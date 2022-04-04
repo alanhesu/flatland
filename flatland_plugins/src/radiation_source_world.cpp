@@ -19,12 +19,16 @@ void RadiationSourceWorld::OnInitialize(const YAML::Node &config) {
   update_timer_.SetRate(update_rate_);
   source_publisher_ = nh_.advertise<flatland_msgs::RadSources>(topic_, 50);
 
-  spawn_source_service_ = nh_.advertiseService("spawn_rad_source", &RadiationSourceWorld::SpawnRadSource, this);
+  nh_rad_.setCallbackQueue(&rad_callback_queue_);
+  spawn_source_service_ = nh_rad_.advertiseService("spawn_rad_source", &RadiationSourceWorld::SpawnRadSource, this);
 
   if (spawn_source_service_) {
     ROS_INFO_NAMED("Service Manager", "Radiation source spawning service ready to go");
   } else {
     ROS_ERROR_NAMED("Service Manager", "Error starting radiation source spawning service");
+
+  rad_callback_queue_.callAvailable(ros::WallDuration());
+
   }
 }
 
@@ -33,6 +37,8 @@ void RadiationSourceWorld::BeforePhysicsStep(const Timekeeper &timekeeper) {
   if (!update_timer_.CheckUpdate(timekeeper)) {
     return;
   }
+
+  rad_callback_queue_.callAvailable(ros::WallDuration());
 
   PopulateSourceMsg(timekeeper);
 

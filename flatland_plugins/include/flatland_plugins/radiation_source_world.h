@@ -5,6 +5,7 @@
 #include <flatland_server/timekeeper.h>
 #include <flatland_server/types.h>
 #include <ros/ros.h>
+#include <ros/callback_queue.h>
 #include <tf/transform_broadcaster.h>
 #include <thirdparty/ThreadPool.h>
 #include <visualization_msgs/Marker.h>
@@ -46,6 +47,10 @@ class RadiationSourceWorld : public WorldPlugin {
   ros::ServiceServer spawn_source_service_;   ///< service for spawning radiation sources
 
   flatland_plugins::UpdateTimer update_timer_;                  ///< for controlling update rate
+
+  // create separate nodehandle and callback queue to handle spawn source service calls
+  ros::NodeHandle nh_rad_;
+  ros::CallbackQueue rad_callback_queue_;
 
   /**
    * @brief Initialization for the plugin

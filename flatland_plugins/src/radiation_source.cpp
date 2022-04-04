@@ -9,7 +9,6 @@ void RadiationSource::OnInitialize(const YAML::Node &config) {
   ParseParameters(config);
   update_timer_.SetRate(update_rate_);
   source_client_ = nh_.serviceClient<flatland_msgs::SpawnRadSource>("spawn_rad_source");
-
 }
 
 void RadiationSource::BeforePhysicsStep(const Timekeeper &timekeeper) {
