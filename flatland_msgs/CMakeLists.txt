@@ -24,7 +24,9 @@ add_message_files(FILES
   Collision.msg
   Collisions.msg
   Vector2.msg
+  RadSource.msg
   RadSources.msg
+  RadSensor.msg
 )
 
 add_service_files(FILES

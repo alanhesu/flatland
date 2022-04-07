@@ -6,6 +6,7 @@
 #include <flatland_server/world_plugin.h>
 #include <flatland_server/model_plugin.h>
 #include <flatland_server/yaml_reader.h>
+#include <flatland_msgs/RadSource.h>
 #include <geometry_msgs/Pose.h>
 #include <boost/algorithm/string/join.hpp>
 #include <cmath>
@@ -52,7 +53,6 @@ void RadiationSourceWorld::BeforePhysicsStep(const Timekeeper &timekeeper) {
 
 bool RadiationSourceWorld::SpawnRadSource(flatland_msgs::SpawnRadSource::Request &request, flatland_msgs::SpawnRadSource::Response &response) {
   //TODO: add debug printout
-  printf("spawned\n");
   std::string name = request.name;
   geometry_msgs::Pose pose = request.pose;
   float value = request.value;
@@ -66,26 +66,22 @@ bool RadiationSourceWorld::SpawnRadSource(flatland_msgs::SpawnRadSource::Request
 
 void RadiationSourceWorld::PopulateSourceMsg(const Timekeeper &timekeeper) {
   source_msg_.header.stamp = timekeeper.GetSimTime();
-  std::vector<std::string> names;
-  std::vector<float> x;
-  std::vector<float> y;
-  std::vector<float> val;
+  std::vector<flatland_msgs::RadSource> sources;
   for (int i = 0; i < source_size_; i++) {
-    names.push_back(sources_[i].name);
-    x.push_back(sources_[i].x);
-    y.push_back(sources_[i].y);
-    val.push_back(sources_[i].val);
+    flatland_msgs::RadSource source;
+    source.header.stamp = timekeeper.GetSimTime();
+    source.name = sources_[i].name;
+    source.pose.position.x = sources_[i].x;
+    source.pose.position.y = sources_[i].y;
+    source.value = sources_[i].val;
+    sources.push_back(source);
   }
-  source_msg_.names = names;
-  source_msg_.x = x;
-  source_msg_.y = y;
-  source_msg_.values = val;
+  source_msg_.sources = sources;
 }
 
 void RadiationSourceWorld::AddSources(std::vector<boost::shared_ptr<ModelPlugin>> model_plugins) {
   for (auto &model_plugin : model_plugins) {
     if (model_plugin->GetType() == "RadiationSource") {
-      std::cout << "addddd\n";
       std::string name;
       geometry_msgs::Pose pose;
       float value;

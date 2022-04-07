@@ -219,7 +219,6 @@ void PluginManager::LoadWorldPlugin(World *world, YamlReader &plugin_reader,
 
   // store the radiation source plugin (if it exists)
   if (world_plugin->GetType() == "flatland_plugins::RadiationSourceWorld") {
-    std::cout << "ADD\n";
     boost::shared_ptr<WorldSourcePlugin> source_plugin = boost::static_pointer_cast<WorldSourcePlugin>(world_plugin);
     source_plugin->AddSources(model_plugins_);
   }

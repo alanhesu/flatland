@@ -17,14 +17,6 @@ void RadiationSource::BeforePhysicsStep(const Timekeeper &timekeeper) {
   if (!update_timer_.CheckUpdate(timekeeper)) {
     return;
   }
-
-  // register the source once
-  if (!spawned_ && source_client_.exists()) {
-    printf("spawning2\n");
-    //SpawnSource();
-    spawned_ = true;
-    printf("spawning3\n");
-  }
 }
 
 void RadiationSource::GetSource(std::string* name, geometry_msgs::Pose* pose, float* value) {
