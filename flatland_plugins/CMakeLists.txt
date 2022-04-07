@@ -84,6 +84,7 @@ add_library(flatland_plugins_lib
   src/simple.cpp
   src/radiation_source_world.cpp
   src/radiation_source.cpp
+  src/radiation_sensor.cpp
 )
 
 add_dependencies(flatland_plugins_lib ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})

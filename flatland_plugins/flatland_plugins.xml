@@ -35,4 +35,7 @@
   <class type="flatland_plugins::RadiationSourceWorld" base_class_type="flatland_server::WorldPlugin">
     <description>Contains and publishes all radiation sources</description>
   </class>
+  <class type="flatland_plugins::RadiationSensor" base_class_type="flatland_server::ModelPlugin">
+    <description>Measures radiation values from sources</description>
+  </class>
 </library>
