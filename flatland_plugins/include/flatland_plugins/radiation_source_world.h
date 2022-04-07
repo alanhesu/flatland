@@ -2,6 +2,7 @@
 #include <flatland_msgs/RadSources.h>
 #include <flatland_msgs/SpawnRadSource.h>
 #include <flatland_server/world_plugin.h>
+#include <flatland_server/world_source_plugin.h>
 #include <flatland_server/timekeeper.h>
 #include <flatland_server/types.h>
 #include <ros/ros.h>
@@ -30,7 +31,7 @@ struct Source {
  * This class implements the model plugin class and provides laser data
  * for the given configurations
  */
-class RadiationSourceWorld : public WorldPlugin {
+class RadiationSourceWorld : public WorldSourcePlugin {
  public:
   std::string topic_;     ///< topic name to publish the laser scan
   double update_rate_;    ///< the rate laser scan will be published
@@ -51,6 +52,7 @@ class RadiationSourceWorld : public WorldPlugin {
   // create separate nodehandle and callback queue to handle spawn source service calls
   ros::NodeHandle nh_rad_;
   ros::CallbackQueue rad_callback_queue_;
+  ros::AsyncSpinner spinner_ = ros::AsyncSpinner(1, &rad_callback_queue_);
 
   /**
    * @brief Initialization for the plugin
@@ -67,10 +69,10 @@ class RadiationSourceWorld : public WorldPlugin {
   void BeforePhysicsStep(const Timekeeper &timekeeper) override;
 
   bool SpawnRadSource(flatland_msgs::SpawnRadSource::Request &request, flatland_msgs::SpawnRadSource::Response &response);
-  /**
-   * @brief Method that contains all of the laser range calculations
-   */
-  //void ComputeLaserRanges();
+
+  void AddSources(std::vector<boost::shared_ptr<ModelPlugin>> model_plugins) override;
+
+  void AddSourceToArray(std::string name, geometry_msgs::Pose pose, float value);
 
   /**
    * @brief helper function to extract the paramters from the YAML Node

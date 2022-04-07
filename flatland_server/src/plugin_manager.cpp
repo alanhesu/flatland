@@ -50,6 +50,7 @@
 #include <flatland_server/plugin_manager.h>
 #include <flatland_server/world.h>
 #include <flatland_server/world_plugin.h>
+#include <flatland_server/world_source_plugin.h>
 #include <yaml-cpp/yaml.h>
 
 namespace flatland_server {
@@ -215,6 +216,13 @@ void PluginManager::LoadWorldPlugin(World *world, YamlReader &plugin_reader,
     throw PluginException(msg + ": " + std::string(e.what()));
   }
   world_plugins_.push_back(world_plugin);
+
+  // store the radiation source plugin (if it exists)
+  if (world_plugin->GetType() == "flatland_plugins::RadiationSourceWorld") {
+    std::cout << "ADD\n";
+    boost::shared_ptr<WorldSourcePlugin> source_plugin = boost::static_pointer_cast<WorldSourcePlugin>(world_plugin);
+    source_plugin->AddSources(model_plugins_);
+  }
 
   ROS_INFO_NAMED("PluginManager", "%s loaded ", msg.c_str());
 }

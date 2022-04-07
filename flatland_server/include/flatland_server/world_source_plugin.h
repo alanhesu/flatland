@@ -7,8 +7,8 @@
  *    \ \_\ \_\ \___/  \ \_\ \___,_\ \_,__/\ \____/\ \__\/\____/
  *     \/_/\/_/\/__/    \/_/\/__,_ /\/___/  \/___/  \/__/\/___/
  * @copyright Copyright 2017 Avidbots Corp.
- * @name  world_plugin.cpp
- * @brief Implent for WorldPlugin pluginlib plugins
+ * @name  world_plugin.h
+ * @brief Interface for WorldPlugin pluginlib plugins
  * @author Yi Ren
  *
  * Software License Agreement (BSD License)
@@ -44,22 +44,19 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <Box2D/Box2D.h>
-#include <ros/ros.h>
+#ifndef FLATLAND_SERVER_WORLD_SOURCE_PLUGIN_H
+#define FLATLAND_SERVER_WORLD_SOURCE_PLUGIN_H
 
-#include <flatland_server/world.h>
 #include <flatland_server/world_plugin.h>
+#include <flatland_server/model_plugin.h>
+#include <ros/ros.h>
 #include <string>
 
 namespace flatland_server {
-void WorldPlugin::Initialize(World *world, std::string name, std::string type,
-                             YAML::Node &plugin_reader,
-                             YamlReader &world_config) {
-  world_ = world;
-  name_ = name;
-  type_ = type;
-  world_config_ = world_config;
-  plugin_type_ = PluginType::World;
-  OnInitialize(plugin_reader);
-}
-}
+class WorldSourcePlugin : public WorldPlugin {
+ public:
+  virtual void AddSources(std::vector<boost::shared_ptr<ModelPlugin>> model_plugins) {}
+};
+};
+
+#endif  // FLATLAND_SERVER_WORLD_SOURCE_PLUGIN_H

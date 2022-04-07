@@ -41,6 +41,8 @@ class RadiationSource : public ModelPlugin {
    */
   void BeforePhysicsStep(const Timekeeper &timekeeper) override;
 
+  void GetSource(std::string* name, geometry_msgs::Pose* pose, float* value);
+
   void SpawnSource();
 
   /**

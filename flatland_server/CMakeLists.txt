@@ -100,7 +100,7 @@ add_library(flatland_lib
   src/timekeeper.cpp
   src/service_manager.cpp
   src/yaml_reader.cpp
-  src/dummy_model_plugin.cpp 
+  src/dummy_model_plugin.cpp
   src/dummy_world_plugin.cpp
   src/yaml_preprocessor.cpp
 )
@@ -183,7 +183,7 @@ install(FILES flatland_plugins.xml
 if(CATKIN_ENABLE_TESTING)
 
   catkin_add_gtest(null_test test/null.cpp)
-  
+
   add_rostest_gtest(load_world_test
     test/load_world_test.test
     test/load_world_test.cpp)
@@ -221,21 +221,21 @@ if(CATKIN_ENABLE_TESTING)
   target_link_libraries(debug_visualization_test
     flatland_lib)
 
-  add_rostest_gtest(dummy_model_plugin_test 
-                    test/dummy_model_plugin_test.test 
-                    test/dummy_model_plugin_test.cpp) 
+  add_rostest_gtest(dummy_model_plugin_test
+                    test/dummy_model_plugin_test.test
+                    test/dummy_model_plugin_test.cpp)
   target_link_libraries(dummy_model_plugin_test
-                        flatland_lib) 
-                        
-  add_rostest_gtest(dummy_world_plugin_test 
-                    test/dummy_world_plugin_test.test 
-                    test/dummy_world_plugin_test.cpp) 
+                        flatland_lib)
+
+  add_rostest_gtest(dummy_world_plugin_test
+                    test/dummy_world_plugin_test.test
+                    test/dummy_world_plugin_test.cpp)
   target_link_libraries(dummy_world_plugin_test
-                        flatland_lib yaml-cpp) 
+                        flatland_lib yaml-cpp)
 
   add_rostest_gtest(yaml_preprocessor_test
-                    test/yaml_preprocessor/yaml_preprocessor_test.test 
-                    test/yaml_preprocessor/yaml_preprocessor_test.cpp) 
+                    test/yaml_preprocessor/yaml_preprocessor_test.test
+                    test/yaml_preprocessor/yaml_preprocessor_test.cpp)
   target_link_libraries(yaml_preprocessor_test
                         flatland_lib yaml-cpp)
 

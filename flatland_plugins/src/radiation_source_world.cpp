@@ -1,8 +1,10 @@
 #include <pluginlib/class_list_macros.h>
 #include <flatland_plugins/radiation_source_world.h>
+#include <flatland_plugins/radiation_source.h>
 #include <flatland_server/collision_filter_registry.h>
 #include <flatland_server/exceptions.h>
 #include <flatland_server/world_plugin.h>
+#include <flatland_server/model_plugin.h>
 #include <flatland_server/yaml_reader.h>
 #include <geometry_msgs/Pose.h>
 #include <boost/algorithm/string/join.hpp>
@@ -27,7 +29,8 @@ void RadiationSourceWorld::OnInitialize(const YAML::Node &config) {
   } else {
     ROS_ERROR_NAMED("Service Manager", "Error starting radiation source spawning service");
 
-  rad_callback_queue_.callAvailable(ros::WallDuration());
+  //spinner_.start();
+  //ros::waitForShutdown();
 
   }
 }
@@ -38,8 +41,7 @@ void RadiationSourceWorld::BeforePhysicsStep(const Timekeeper &timekeeper) {
     return;
   }
 
-  rad_callback_queue_.callAvailable(ros::WallDuration());
-
+  spinner_.start();
   PopulateSourceMsg(timekeeper);
 
   // only compute and publish when the number of subscribers is not zero
@@ -55,25 +57,10 @@ bool RadiationSourceWorld::SpawnRadSource(flatland_msgs::SpawnRadSource::Request
   geometry_msgs::Pose pose = request.pose;
   float value = request.value;
 
-  if (source_size_ >= source_max_) {
-    int new_max = source_max_*2;
-    Source* sources_new = new Source[new_max];
-    for (int i = 0; i < source_size_; i++) {
-      sources_new[i] = sources_[i];
-    }
-    delete[] sources_;
-    sources_ = sources_new;
-    source_max_ = new_max;
-  }
-  sources_[source_size_].name = name;
-  sources_[source_size_].x = pose.position.x;
-  sources_[source_size_].y = pose.position.y;
-  sources_[source_size_].val = value;
+  AddSourceToArray(name, pose, value);
 
   response.success = true;
   response.message = sources_[source_size_].name;
-
-  source_size_++;
   return true;
 }
 
@@ -93,6 +80,40 @@ void RadiationSourceWorld::PopulateSourceMsg(const Timekeeper &timekeeper) {
   source_msg_.x = x;
   source_msg_.y = y;
   source_msg_.values = val;
+}
+
+void RadiationSourceWorld::AddSources(std::vector<boost::shared_ptr<ModelPlugin>> model_plugins) {
+  for (auto &model_plugin : model_plugins) {
+    if (model_plugin->GetType() == "RadiationSource") {
+      std::cout << "addddd\n";
+      std::string name;
+      geometry_msgs::Pose pose;
+      float value;
+      boost::shared_ptr<RadiationSource> source_plugin = boost::static_pointer_cast<RadiationSource>(model_plugin);
+      source_plugin->GetSource(&name, &pose, &value);
+
+      AddSourceToArray(name, pose, value);
+    }
+  }
+}
+
+void RadiationSourceWorld::AddSourceToArray(std::string name, geometry_msgs::Pose pose, float value) {
+  if (source_size_ >= source_max_) {
+    int new_max = source_max_*2;
+    Source* sources_new = new Source[new_max];
+    for (int i = 0; i < source_size_; i++) {
+      sources_new[i] = sources_[i];
+    }
+    delete[] sources_;
+    sources_ = sources_new;
+    source_max_ = new_max;
+  }
+  sources_[source_size_].name = name;
+  sources_[source_size_].x = pose.position.x;
+  sources_[source_size_].y = pose.position.y;
+  sources_[source_size_].val = value;
+
+  source_size_++;
 }
 
 void RadiationSourceWorld::ParseParameters(const YAML::Node &config) {

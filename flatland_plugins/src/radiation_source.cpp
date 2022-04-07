@@ -1,4 +1,5 @@
 #include <flatland_plugins/radiation_source.h>
+#include <geometry_msgs/Pose.h>
 #include <pluginlib/class_list_macros.h>
 
 using namespace flatland_server;
@@ -20,10 +21,20 @@ void RadiationSource::BeforePhysicsStep(const Timekeeper &timekeeper) {
   // register the source once
   if (!spawned_ && source_client_.exists()) {
     printf("spawning2\n");
-    SpawnSource();
+    //SpawnSource();
     spawned_ = true;
     printf("spawning3\n");
   }
+}
+
+void RadiationSource::GetSource(std::string* name, geometry_msgs::Pose* pose, float* value) {
+  b2Body* b2body = body_->physics_body_;
+  b2Vec2 position = b2body->GetPosition();
+
+  *name = name_;
+  pose->position.x = position.x;
+  pose->position.y = position.y;
+  *value = value_;
 }
 
 void RadiationSource::SpawnSource() {

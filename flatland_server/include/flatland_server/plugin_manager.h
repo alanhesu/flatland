@@ -53,6 +53,7 @@
 #include <flatland_server/timekeeper.h>
 #include <flatland_server/world_plugin.h>
 #include <flatland_server/yaml_reader.h>
+#include <flatland_server/world_source_plugin.h>
 #include <pluginlib/class_loader.h>
 #include <yaml-cpp/yaml.h>
 
@@ -61,6 +62,8 @@ namespace flatland_server {
 // forward declaration
 class World;
 
+class RadiationSourceWorld;
+
 class PluginManager {
  public:
   std::vector<boost::shared_ptr<ModelPlugin>> model_plugins_;
@@ -68,6 +71,7 @@ class PluginManager {
 
   std::vector<boost::shared_ptr<WorldPlugin>> world_plugins_;
   pluginlib::ClassLoader<flatland_server::WorldPlugin> *world_plugin_loader_;
+
   /**
    * @brief Plugin manager constructor
    */
