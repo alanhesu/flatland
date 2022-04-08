@@ -26,7 +26,7 @@ void RadiationSensor::UpdateSource(const Timekeeper &timekeeper) {
   // sum up contribution from sources
   float sensor_val = 0.0;
   for (flatland_msgs::RadSource source : source_msg_.sources) {
-    sensor_val += CalcSource(sensor_pos, source.pose.position.x, source.pose.position.y, source.value);
+    sensor_val += CalcSource(sensor_pos, source);
   }
 
   // construct sensor message
@@ -98,14 +98,42 @@ void RadiationSensor::ParseParameters(const YAML::Node &config) {
   sensor_tf_.transform.rotation.w = cos(0.5 * origin_.theta);
 }
 
-float RadiationSensor::CalcSource(b2Vec2 sensor_pos, float source_x, float source_y, float source_val) {
-  float dist = Distance(sensor_pos.x, sensor_pos.y, source_x, source_y);
-  float value = source_val/pow(dist, 2);
-  return value;
+float RadiationSensor::CalcSource(b2Vec2 sensor_pos, flatland_msgs::RadSource source) {
+  if (source.geometry == "point") {
+    float dist = Distance(sensor_pos.x, sensor_pos.y, source.pose.position.x, source.pose.position.y);
+    float value = source.value/pow(dist, 2);
+    return value;
+  } else if (source.geometry == "line") {
+    float i_x, i_y;
+    float h = DistancePointToLine(sensor_pos.x, sensor_pos.y,
+                                  source.p1.x, source.p1.y,
+                                  source.p2.x, source.p2.y,
+                                  &i_x, &i_y);
+    float L_L = Distance(i_x, i_y, source.p1.x, source.p1.y);
+    float L_R = Distance(i_x, i_y, source.p2.x, source.p2.y);
+    float value = source.value*(atan(L_L/h) + atan(L_R/h))/h;
+    return value;
+  } else {
+    ROS_ERROR_NAMED("Radiation sensor", "Source geometry not specified. Must be 'point' or 'line'");
+    return 0.0;
+  }
 }
 
 float RadiationSensor::Distance(float x1, float y1, float x2, float y2) {
   float dist = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+  return dist;
+}
+
+float RadiationSensor::DistancePointToLine(float x0, float y0, float x1, float y1, float x2, float y2, float* i_x, float* i_y) {
+  float dist = abs((x2 - x1)*(y1 - y0) - (x1 - x0)*(y2 - y1));
+  dist = dist/Distance(x1, y1, x2, y2);
+
+  // find the point on the line closest to the point (x0, y0)
+  float a = y1 - y2;
+  float b = x2 - x1;
+  float c = x1*y2 - x2*y1;
+  *i_x = (b*(b*x0 - a*y0) - a*c)/(pow(a, 2) + pow(b, 2));
+  *i_y = (a*(-b*x0 + a*y0) - b*c)/(pow(a, 2) + pow(b, 2));
   return dist;
 }
 }

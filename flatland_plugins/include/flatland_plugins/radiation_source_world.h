@@ -1,6 +1,7 @@
 #include <flatland_plugins/update_timer.h>
 #include <flatland_msgs/RadSources.h>
 #include <flatland_msgs/SpawnRadSource.h>
+#include <flatland_msgs/RadSource.h>
 #include <flatland_server/world_plugin.h>
 #include <flatland_server/world_source_plugin.h>
 #include <flatland_server/timekeeper.h>
@@ -20,13 +21,6 @@ using namespace flatland_server;
 
 namespace flatland_plugins {
 
-struct Source {
-  std::string name;
-  float x;
-  float y;
-  float val;
-};
-
 /**
  * This class implements the model plugin class and provides laser data
  * for the given configurations
@@ -37,9 +31,9 @@ class RadiationSourceWorld : public WorldSourcePlugin {
   double update_rate_;    ///< the rate laser scan will be published
   flatland_msgs::RadSources source_msg_;
 
-  int source_max_ = 20;
-  int source_size_ = 0;
-  Source* sources_ = new Source[source_max_];
+  //int source_max_ = 20;
+  //int source_size_ = 0;
+  std::vector<flatland_msgs::RadSource> sources_;
 
   std::default_random_engine rng_;              ///< random generator
 
@@ -72,7 +66,7 @@ class RadiationSourceWorld : public WorldSourcePlugin {
 
   void AddSources(std::vector<boost::shared_ptr<ModelPlugin>> model_plugins) override;
 
-  void AddSourceToArray(std::string name, geometry_msgs::Pose pose, float value);
+  void AddSourceToArray(flatland_msgs::RadSource source);
 
   /**
    * @brief helper function to extract the paramters from the YAML Node

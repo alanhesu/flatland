@@ -63,9 +63,11 @@ class RadiationSensor : public ModelPlugin {
    */
   void ParseParameters(const YAML::Node &config);
 
-  float CalcSource(b2Vec2 sensor_pos, float source_x, float source_y, float source_val);
+  float CalcSource(b2Vec2 sensor_pos, flatland_msgs::RadSource source);
 
   float Distance(float x1, float y1, float x2, float y2);
+
+  float DistancePointToLine(float x0, float y0, float x1, float y1, float x2, float y2, float* i_x, float* i_y);
 };
 }
 

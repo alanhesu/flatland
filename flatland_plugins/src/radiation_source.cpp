@@ -1,5 +1,7 @@
 #include <flatland_plugins/radiation_source.h>
+#include <flatland_msgs/RadSource.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Point.h>
 #include <pluginlib/class_list_macros.h>
 
 using namespace flatland_server;
@@ -19,18 +21,31 @@ void RadiationSource::BeforePhysicsStep(const Timekeeper &timekeeper) {
   }
 }
 
-void RadiationSource::GetSource(std::string* name, geometry_msgs::Pose* pose, float* value) {
+void RadiationSource::GetSource(flatland_msgs::RadSource* source) {
   b2Body* b2body = body_->physics_body_;
   b2Vec2 position = b2body->GetPosition();
+  b2Vec2 p1 = b2Vec2(0, 0);
+  b2Vec2 p2 = b2Vec2(0, 0);
+  if (geometry_ == "line") {
+    p1 = b2Vec2(position.x + points_[0].x, position.y + points_[0].y);
+    p2 = b2Vec2(position.x + points_[1].x, position.y + points_[1].y);
+  }
 
-  *name = name_;
-  pose->position.x = position.x;
-  pose->position.y = position.y;
-  *value = value_;
+  source->name = name_;
+  source->value = value_;
+  source->geometry = geometry_;
+  source->pose.position.x = position.x;
+  source->pose.position.y = position.y;
+  source->p1.x = p1.x;
+  source->p1.y = p1.y;
+  source->p2.x = p2.x;
+  source->p2.y = p2.y;
 }
 
 void RadiationSource::SpawnSource() {
   // get world coordinates of source
+  return;
+  /*
   b2Body* b2body = body_->physics_body_;
   b2Vec2 position = b2body->GetPosition();
   float angle = b2body->GetAngle();
@@ -47,14 +62,18 @@ void RadiationSource::SpawnSource() {
   } else {
     printf("failed\n");
   }
+  */
 }
 
 void RadiationSource::ParseParameters(const YAML::Node &config) {
   YamlReader reader(config);
   std::string body_name = reader.Get<std::string>("body");
   update_rate_ = reader.Get<double>("update_rate", 10.0);
+  geometry_ = reader.Get<std::string>("geometry", "point");
   origin_ = reader.GetPose("origin", Pose(0, 0, 0));
   value_ = reader.Get<double>("value", 0);
+  std::vector<b2Vec2> default_points = {b2Vec2(0, 0), b2Vec2(0, 0)};
+  points_ = reader.GetList<b2Vec2>("line_points", default_points, 2, 2);
 
   body_ = GetModel()->GetBody(body_name);
   if (!body_) {

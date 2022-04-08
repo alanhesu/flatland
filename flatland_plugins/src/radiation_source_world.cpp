@@ -8,6 +8,7 @@
 #include <flatland_server/yaml_reader.h>
 #include <flatland_msgs/RadSource.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Point.h>
 #include <boost/algorithm/string/join.hpp>
 #include <cmath>
 #include <limits>
@@ -43,6 +44,7 @@ void RadiationSourceWorld::BeforePhysicsStep(const Timekeeper &timekeeper) {
   }
 
   spinner_.start();
+  //TODO: this doesn't actually prevent deadlocks, but I don't want to go through the effort of reverting it
   PopulateSourceMsg(timekeeper);
 
   // only compute and publish when the number of subscribers is not zero
@@ -53,63 +55,72 @@ void RadiationSourceWorld::BeforePhysicsStep(const Timekeeper &timekeeper) {
 
 bool RadiationSourceWorld::SpawnRadSource(flatland_msgs::SpawnRadSource::Request &request, flatland_msgs::SpawnRadSource::Response &response) {
   //TODO: add debug printout
-  std::string name = request.name;
-  geometry_msgs::Pose pose = request.pose;
-  float value = request.value;
+  //std::string name = request.name;
+  //std::string geometry = request.geometry;
+  //geometry_msgs::Pose pose = request.pose;
+  //float value = request.value;
+  //geometry_msgs::Point p1 = request.p1;
+  //geometry_msgs::Point p2 = request.p2;
 
-  AddSourceToArray(name, pose, value);
+  std::cout << "spawning";
+  AddSourceToArray(request.source);
 
   response.success = true;
-  response.message = sources_[source_size_].name;
+  response.message = request.source.name;
   return true;
 }
 
 void RadiationSourceWorld::PopulateSourceMsg(const Timekeeper &timekeeper) {
   source_msg_.header.stamp = timekeeper.GetSimTime();
   std::vector<flatland_msgs::RadSource> sources;
-  for (int i = 0; i < source_size_; i++) {
-    flatland_msgs::RadSource source;
-    source.header.stamp = timekeeper.GetSimTime();
-    source.name = sources_[i].name;
-    source.pose.position.x = sources_[i].x;
-    source.pose.position.y = sources_[i].y;
-    source.value = sources_[i].val;
+  for (flatland_msgs::RadSource source : sources_) {
     sources.push_back(source);
   }
+  //for (int i = 0; i < source_size_; i++) {
+    //flatland_msgs::RadSource source;
+    //source.header.stamp = timekeeper.GetSimTime();
+    //source.name = sources_[i].name;
+    //source.pose.position.x = sources_[i].x;
+    //source.pose.position.y = sources_[i].y;
+    //source.value = sources_[i].val;
+    //sources.push_back(source);
+  //}
   source_msg_.sources = sources;
 }
 
 void RadiationSourceWorld::AddSources(std::vector<boost::shared_ptr<ModelPlugin>> model_plugins) {
   for (auto &model_plugin : model_plugins) {
     if (model_plugin->GetType() == "RadiationSource") {
-      std::string name;
-      geometry_msgs::Pose pose;
-      float value;
+      //std::string name;
+      //geometry_msgs::Pose pose;
+      //float value;
+      flatland_msgs::RadSource source;
       boost::shared_ptr<RadiationSource> source_plugin = boost::static_pointer_cast<RadiationSource>(model_plugin);
-      source_plugin->GetSource(&name, &pose, &value);
+      source_plugin->GetSource(&source);
 
-      AddSourceToArray(name, pose, value);
+      AddSourceToArray(source);
     }
   }
 }
 
-void RadiationSourceWorld::AddSourceToArray(std::string name, geometry_msgs::Pose pose, float value) {
-  if (source_size_ >= source_max_) {
-    int new_max = source_max_*2;
-    Source* sources_new = new Source[new_max];
-    for (int i = 0; i < source_size_; i++) {
-      sources_new[i] = sources_[i];
-    }
-    delete[] sources_;
-    sources_ = sources_new;
-    source_max_ = new_max;
-  }
-  sources_[source_size_].name = name;
-  sources_[source_size_].x = pose.position.x;
-  sources_[source_size_].y = pose.position.y;
-  sources_[source_size_].val = value;
+void RadiationSourceWorld::AddSourceToArray(flatland_msgs::RadSource source) {
+  sources_.push_back(source);
+  //if (source_size_ >= source_max_) {
+    //int new_max = source_max_*2;
+    //Source* sources_new = new Source[new_max];
+    //for (int i = 0; i < source_size_; i++) {
+      //sources_new[i] = sources_[i];
+    //}
+    //delete[] sources_;
+    //sources_ = sources_new;
+    //source_max_ = new_max;
+  //}
+  //sources_[source_size_].name = name;
+  //sources_[source_size_].x = pose.position.x;
+  //sources_[source_size_].y = pose.position.y;
+  //sources_[source_size_].val = value;
 
-  source_size_++;
+  //source_size_++;
 }
 
 void RadiationSourceWorld::ParseParameters(const YAML::Node &config) {
